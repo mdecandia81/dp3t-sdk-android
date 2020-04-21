@@ -14,8 +14,6 @@ import androidx.core.content.ContextCompat;
 
 public class TracingServiceBroadcastReceiver extends BroadcastReceiver {
 
-	PowerManager.WakeLock screenWakeLock;
-
 	@Override
 	public void onReceive(Context context, Intent i) {
 		Log.d("TracingServiceBdcRecv", "received broadcast to start service");

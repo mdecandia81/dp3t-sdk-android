@@ -73,8 +73,6 @@ public class TracingService extends Service {
 	private long scanInterval;
 	private long scanDuration;
 
-	public TracingService() { }
-
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -231,7 +229,8 @@ public class TracingService extends Service {
 		Intent intent = new Intent(context, TracingServiceBroadcastReceiver.class);
 		intent.setAction(ACTION_RESTART_CLIENT);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, now + delay, pendingIntent);
+		//alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, now + delay, pendingIntent);
+		alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(now + delay, pendingIntent), pendingIntent);
 	}
 
 	public static void scheduleNextServerRestart(Context context) {
@@ -240,7 +239,8 @@ public class TracingService extends Service {
 		Intent intent = new Intent(context, TracingServiceBroadcastReceiver.class);
 		intent.setAction(ACTION_RESTART_SERVER);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 2, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextEpochStart, pendingIntent);
+		//alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextEpochStart, pendingIntent);
+		alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(nextEpochStart, pendingIntent), pendingIntent);
 	}
 
 	private void stopForegroundService() {
