@@ -8,6 +8,7 @@ plugins {
 	id 'com.android.library'
 	id 'maven-publish'
 	id 'com.jfrog.bintray'
+	id "com.google.protobuf"
 }
 
 android {
@@ -47,6 +48,31 @@ android {
 	compileOptions {
 		sourceCompatibility = 1.8
 		targetCompatibility = 1.8
+	}
+}
+
+protobuf {
+	protoc {
+		// You still need protoc like in the non-Android case
+		artifact = 'com.google.protobuf:protoc:3.0.0'
+	}
+	plugins {
+		javalite {
+			// The codegen for lite comes as a separate artifact
+			artifact = 'com.google.protobuf:protoc-gen-javalite:3.0.0'
+		}
+	}
+	generateProtoTasks {
+		all().each { task ->
+			task.builtins {
+				// In most cases you don't need the full Java output
+				// if you use the lite output.
+				remove java
+			}
+			task.plugins {
+				javalite {}
+			}
+		}
 	}
 }
 
@@ -93,6 +119,7 @@ dependencies {
 	implementation 'androidx.core:core:1.2.0'
 	implementation "androidx.security:security-crypto:1.0.0-beta01"
 	implementation 'androidx.work:work-runtime:2.3.4'
+	implementation 'com.google.protobuf:protobuf-lite:3.0.0'
 
 	implementation 'com.squareup.retrofit2:retrofit:2.6.2'
 	implementation 'com.squareup.retrofit2:converter-gson:2.6.2'

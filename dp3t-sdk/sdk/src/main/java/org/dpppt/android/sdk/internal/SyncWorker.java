@@ -9,8 +9,13 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.work.*;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPOutputStream;
+
+import com.google.protobuf.ByteString;
 
 import org.dpppt.android.sdk.internal.backend.BackendRepository;
 import org.dpppt.android.sdk.internal.backend.ResponseException;
@@ -18,8 +23,12 @@ import org.dpppt.android.sdk.internal.backend.models.ApplicationInfo;
 import org.dpppt.android.sdk.internal.backend.models.CachedResult;
 import org.dpppt.android.sdk.internal.backend.models.ExposedList;
 import org.dpppt.android.sdk.internal.backend.models.Exposee;
+import org.dpppt.android.sdk.internal.backend.proto.Test;
 import org.dpppt.android.sdk.internal.database.Database;
+import org.dpppt.android.sdk.internal.logger.Logger;
 import org.dpppt.android.sdk.internal.util.DayDate;
+
+import static org.dpppt.android.sdk.internal.util.Base64Util.fromBase64;
 
 public class SyncWorker extends Worker {
 
@@ -86,8 +95,28 @@ public class SyncWorker extends Worker {
 			CachedResult<ExposedList> result = backendRepository.getExposees(dateToLoad);
 			if (result.isFromCache()) {
 				//ignore if result comes from cache, we already added it to database
-				continue;
+				//continue;
 			}
+
+			Test.ProtoExposedList.Builder builder = Test.ProtoExposedList.getDefaultInstance().toBuilder();
+			int counter = 0;
+			for (Exposee exposee : result.getData().getExposed()) {
+				builder.addExposed(counter, Test.ProtoExposee.getDefaultInstance().toBuilder()
+						.setOnset(exposee.getOnset().getStartOfDayTimestamp())
+						.setKey(ByteString.copyFrom(fromBase64(exposee.getKey())))
+						.build());
+				counter++;
+			}
+			Test.ProtoExposedList exposedList = builder.build();
+			File file = new File(context.getCacheDir(), "protoTest.proto");
+			file.delete();
+			GZIPOutputStream gzipOutputStream = new GZIPOutputStream(new FileOutputStream(file));
+			exposedList.writeTo(gzipOutputStream);
+			gzipOutputStream.finish();
+			gzipOutputStream.flush();
+			gzipOutputStream.close();
+			Logger.d("Proto", dateToLoad.formatAsString() + " file size is: " + file.length());
+
 			for (Exposee exposee : result.getData().getExposed()) {
 				database.addKnownCase(
 						context,

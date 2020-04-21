@@ -1,0 +1,10 @@
+package org.dpppt.android.sdk.internal.backend.proto;
+
+message ProtoExposedList {
+  repeated ProtoExposee exposed = 1;
+}
+
+message ProtoExposee{
+  required bytes key = 2;
+  required int64 onset = 3;
+}
