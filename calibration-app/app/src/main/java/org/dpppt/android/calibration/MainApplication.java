@@ -17,6 +17,7 @@ import org.dpppt.android.sdk.DP3T;
 import org.dpppt.android.sdk.internal.logger.LogLevel;
 import org.dpppt.android.sdk.internal.logger.Logger;
 import org.dpppt.android.sdk.internal.util.ProcessUtil;
+import org.dpppt.android.sdk.internal.backend.models.ApplicationInfo;
 
 public class MainApplication extends Application {
 
@@ -34,7 +35,7 @@ public class MainApplication extends Application {
 	}
 
 	public static void initDP3T(Context context) {
-		DP3T.init(context, "org.dpppt.demo", true);
+		DP3T.init(context, new ApplicationInfo("it.noiapp.demo", "https://protetti.app/"));
 	}
 
 	@Override
